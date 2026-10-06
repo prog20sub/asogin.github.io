@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Control - Base de Datos</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">💪 Gym Control</div>
+        <nav class="nav-links">
+            <a href="index.html">Principal</a>
+            <a href="database.html" class="active">Base de Datos</a>
+            <a href="dashboard.html">Dashboard</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Base de Datos General de Clientes</h1>
+
+        <section class="card">
+            <div class="form-group">
+                <label for="buscador">Buscar por Cédula, Nombre o Apellido:</label>
+                <input type="text" id="buscador" placeholder="Escribe para buscar...">
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>📁 Directorio de Clientes</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Cédula</th>
+                            <th>Nombre y Apellido</th>
+                            <th>Celular</th>
+                            <th>Plan / Modalidad</th>
+                            <th>Estado / Inactividad</th>
+                            <th>Cobrado por</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-database">
+                        <tr><td colspan="8" style="text-align: center;">Cargando base de datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal-editar" class="card" style="display: none; border: 2px solid var(--primary);">
+        <h2>✏️ Editar Datos, Vencimiento o Foto</h2>
+        <form id="form-editar">
+            <input type="hidden" id="edit-id">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="edit-cedula">Cédula:</label>
+                    <input type="text" id="edit-cedula" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-nombre">Nombre:</label>
+                    <input type="text" id="edit-nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-apellido">Apellido:</label>
+                    <input type="text" id="edit-apellido" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-celular">Celular:</label>
+                    <input type="text" id="edit-celular">
+                </div>
+                <div class="form-group">
+                    <label for="edit-correo">Correo:</label>
+                    <input type="email" id="edit-correo">
+                </div>
+                <div class="form-group">
+                    <label for="edit-vencimiento">Fecha de Vencimiento:</label>
+                    <input type="date" id="edit-vencimiento" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-foto">Actualizar Fotografía (Opcional):</label>
+                    <input type="file" id="edit-foto" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="edit-cobrado">Cobrado por:</label>
+                    <input type="text" id="edit-cobrado">
+                </div>
+            </div>
+            <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="submit" class="btn-primary">Guardar Cambios</button>
+                <button type="button" class="btn-renovar" style="background-color: var(--danger);" onclick="eliminarClienteActual()">🗑️ Eliminar Cliente</button>
+                <button type="button" class="btn-renovar" style="background-color: #6c757d;" onclick="cerrarModalEditar()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="database.js"></script>
+</body>
+</html>

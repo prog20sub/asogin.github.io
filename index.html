@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Control - Principal</title>
+    <!-- Importar fuente moderna Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <!-- MENÚ LATERAL DE NAVEGACIÓN -->
+    <header class="navbar">
+        <div class="logo">💪 Gym Control</div>
+        <nav class="nav-links">
+            <a href="index.html" class="active">Principal</a>
+            <a href="database.html">Base de Datos</a>
+            <a href="dashboard.html">Dashboard</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Control y Registro de Membresías</h1>
+
+        <!-- FORMULARIO DE REGISTRO / AÑADIR CLIENTE -->
+        <section class="card">
+            <h2>Registrar Nuevo Cliente / Pago</h2>
+            <form id="form-cliente">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="cedula">Cédula:</label>
+                        <input type="text" id="cedula" required placeholder="Ej: V-12345678">
+                    </div>
+                    <div class="form-group">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" id="nombre" required placeholder="Nombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="apellido">Apellido:</label>
+                        <input type="text" id="apellido" required placeholder="Apellido">
+                    </div>
+                    <div class="form-group">
+                        <label for="celular">Celular / WhatsApp:</label>
+                        <input type="tel" id="celular" placeholder="Ej: 04121234567">
+                    </div>
+                    <div class="form-group">
+                        <label for="metodo_pago">Método de Pago:</label>
+                        <select id="metodo_pago" required>
+                            <option value="">Seleccione método de pago</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Punto de venta">Punto de venta</option>
+                            <option value="Pago móvil">Pago móvil</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="foto">Fotografía (Cámara o Archivo):</label>
+                        <input type="file" id="foto" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="plan">Plan:</label>
+                        <select id="plan" required>
+                            <option value="">Seleccione un plan</option>
+                            <option value="Solo máquinas">Solo máquinas</option>
+                            <option value="Guiado">Guiado</option>
+                            <option value="Asistido">Asistido</option>
+                            <option value="Personalizado">Personalizado</option>
+                            <option value="Edad plateada grupal">Edad plateada grupal</option>
+                            <option value="Edad plateada individual">Edad plateada individual</option>
+                            <option value="Funcional híbrido">Funcional híbrido</option>
+                            <option value="Funcional híbrido B">Funcional híbrido B</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalidad">Modalidad / Vigencia:</label>
+                        <select id="modalidad" required>
+                            <option value="">Seleccione modalidad</option>
+                            <option value="Diario">Diario</option>
+                            <option value="Semanal">Semanal</option>
+                            <option value="Mensual">Mensual</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="monto">Monto a Pagar ($):</label>
+                        <input type="number" step="0.01" id="monto" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_pago">Fecha de Pago:</label>
+                        <input type="date" id="fecha_pago" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cobrado_por">Cobrado por (Administrador/Encargado):</label>
+                        <input type="text" id="cobrado_por" placeholder="Tu nombre o el del cobrador" required>
+                    </div>
+                </div>
+                <button type="submit" id="btn-guardar" class="btn-primary">Guardar y Activar Membresía</button>
+                <p id="mensaje-estado"></p>
+            </form>
+        </section>
+
+        <!-- CUADRO 1: CLIENTES ACTIVOS -->
+        <section class="card">
+            <h2>🏋️‍♂️ Clientes Activos</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre y Apellido</th>
+                            <th>Plan / Modalidad</th>
+                            <th>Estado</th>
+                            <th>Fecha de Vencimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-activos">
+                        <tr><td colspan="5" style="text-align: center;">Cargando clientes activos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- CUADRO 2: CLIENTES VENCIDOS -->
+        <section class="card alert-card">
+            <h2>⚠️ Clientes Vencidos (Deudores)</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre y Apellido</th>
+                            <th>Días Vencido</th>
+                            <th>Monto Pendiente</th>
+                            <th>Acción / Renovar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-vencidos">
+                        <tr><td colspan="5" style="text-align: center;">Cargando clientes vencidos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

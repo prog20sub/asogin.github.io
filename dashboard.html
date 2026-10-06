@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Control - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <!-- MENÚ LATERAL DE NAVEGACIÓN -->
+    <header class="navbar">
+        <div class="logo">💪 Gym Control</div>
+        <nav class="nav-links">
+            <a href="index.html">Principal</a>
+            <a href="database.html">Base de Datos</a>
+            <a href="dashboard.html" class="active">Dashboard</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Panel de Estadísticas y Resumen</h1>
+
+        <!-- TARJETAS DE RESUMEN -->
+        <div class="form-grid" style="margin-bottom: 30px;">
+            <div class="card" style="text-align: center; margin-bottom: 0;">
+                <h3>Clientes Activos</h3>
+                <p id="stat-activos" style="font-size: 2rem; font-weight: bold; color: var(--success); margin-top: 10px;">0</p>
+            </div>
+            <div class="card" style="text-align: center; margin-bottom: 0;">
+                <h3>Clientes Vencidos</h3>
+                <p id="stat-vencidos" style="font-size: 2rem; font-weight: bold; color: var(--danger); margin-top: 10px;">0</p>
+            </div>
+            <div class="card" style="text-align: center; margin-bottom: 0;">
+                <h3>Ingresos Totales Registrados</h3>
+                <p id="stat-ingresos" style="font-size: 2rem; font-weight: bold; color: var(--primary); margin-top: 10px;">$0.00</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
