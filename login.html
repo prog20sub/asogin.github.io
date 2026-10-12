@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Control - Iniciar Sesión</title>
+    <link rel="icon" type="image/png" href="img/asogin.jpeg">
+    <!-- Fuente moderna Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Estilos específicos y modernos para la pantalla de login alineados al tema oscuro/naranja */
+        body {
+            background: linear-gradient(rgba(11, 11, 11, 0.75), rgba(11, 11, 11, 0.85)), 
+                        url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .login-card-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background-color: var(--card-bg, #141414);
+            padding: 40px 30px 30px 30px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border, #222222);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            position: relative;
+            text-align: center;
+        }
+
+        /* Avatar flotante superior con el color naranja de la página */
+        .login-avatar {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ff6600, #e65c00);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 5px 15px rgba(255, 102, 0, 0.4);
+            border: 4px solid #141414;
+        }
+
+        .login-card h2 {
+            margin-top: 15px;
+            font-size: 1.6rem;
+            color: var(--text-color, #f5f5f5);
+            font-weight: 700;
+        }
+
+        .login-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted, #a0a0a0);
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted, #a0a0a0);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            padding: 12px 14px;
+            background-color: #1a1a1a;
+            border: 1px solid #303030;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-color, #f5f5f5);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #ff6600;
+            box-shadow: 0 0 10px rgba(255, 102, 0, 0.4);
+            background-color: #1f1f1f;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, #ff6600, #e65c00);
+            color: white;
+            border: none;
+            padding: 13px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.4);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #ff8533, #ff701a);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 102, 0, 0.6);
+        }
+
+        #mensaje-error {
+            color: #ff3333;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card-container">
+        <div class="login-card">
+            <div class="login-avatar">
+                💪
+            </div>
+
+            <h2>Gym Control</h2>
+            <p class="login-subtitle">Ingresa tus credenciales para acceder</p>
+
+            <form id="form-login">
+                <div class="form-group">
+                    <label for="usuario">Usuario:</label>
+                    <input type="text" id="usuario" required placeholder="Ej: trinidad_admin">
+                </div>
+                
+                <div class="form-group">
+                    <label for="clave">Contraseña:</label>
+                    <input type="password" id="clave" required placeholder="••••">
+                </div>
+
+                <button type="submit" id="btn-login" class="btn-login">Iniciar Sesión</button>
+                <p id="mensaje-error"></p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://chcemondfyqdreqdqkxg.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_CspBzD2ChSg_zLU_kX19wg_AfRG2c-b';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const formLogin = document.getElementById('form-login');
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usuarioInput = document.getElementById('usuario').value.trim();
+            const claveInput = document.getElementById('clave').value.trim();
+            const mensajeError = document.getElementById('mensaje-error');
+            const btnLogin = document.getElementById('btn-login');
+
+            mensajeError.textContent = "";
+            btnLogin.textContent = "Verificando...";
+            btnLogin.disabled = true;
+
+            try {
+                // Buscamos el usuario en Supabase
+                const { data: user, error } = await _supabase
+                    .from('usuarios')
+                    .select('*')
+                    .eq('usuario', usuarioInput)
+                    .eq('clave', claveInput)
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                if (!user) {
+                    throw new Error("Usuario o contraseña incorrectos.");
+                }
+
+                // Verificamos si la sede/cuenta está activa
+                if (!user.activo) {
+                    throw new Error("⚠️ Esta cuenta/sede se encuentra actualmente en construcción y sin acceso habilitado.");
+                }
+
+                // Guardamos la sesión en el navegador
+                localStorage.setItem('gym_sesion', JSON.stringify({
+                    usuario: user.usuario,
+                    rol: user.rol,
+                    sede: user.sede
+                }));
+
+                // Redirigimos a la página principal
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                mensajeError.textContent = err.message;
+                btnLogin.textContent = "Iniciar Sesión";
+                btnLogin.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
