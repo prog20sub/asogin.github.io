@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym Control - Principal</title>
+    <link rel="icon" type="image/png" href="img/asogin.jpeg">
+
     <!-- Importar fuente moderna Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -12,13 +14,20 @@
 </head>
 <body>
 
-    <!-- MENÚ LATERAL DE NAVEGACIÓN -->
+    <!-- MENÚ DE NAVEGACIÓN -->
     <header class="navbar">
-        <div class="logo">💪 Gym Control</div>
-        <nav class="nav-links">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="img/asogin.jpeg" alt="Logo Asogin" style="height: 32px; width: 32px; border-radius: 50%; object-fit: cover;">
+            <span>Gym Control</span>
+        </div>
+        <nav class="nav-links" style="display: flex; align-items: center; gap: 15px;">
             <a href="index.html" class="active">Principal</a>
             <a href="database.html">Base de Datos</a>
             <a href="dashboard.html">Dashboard</a>
+            <!-- Botón de Cerrar Sesión Integrado -->
+            <button onclick="cerrarSesion()" style="background: #ff6600; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px;" onmouseover="this.style.background='#e55b00'" onmouseout="this.style.background='#ff6600'" title="Cerrar Sesión">
+                🚪 Salir
+            </button>
         </nav>
     </header>
 
@@ -47,6 +56,14 @@
                         <input type="tel" id="celular" placeholder="Ej: 04121234567">
                     </div>
                     <div class="form-group">
+                        <label for="sede">Sede:</label>
+                        <select id="sede" required>
+                            <option value="">Seleccione una sede</option>
+                            <option value="La Trinidad">La Trinidad</option>
+                            <option value="Polideportivo">Polideportivo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="metodo_pago">Método de Pago:</label>
                         <select id="metodo_pago" required>
                             <option value="">Seleccione método de pago</option>
@@ -71,6 +88,8 @@
                             <option value="Edad plateada individual">Edad plateada individual</option>
                             <option value="Funcional híbrido">Funcional híbrido</option>
                             <option value="Funcional híbrido B">Funcional híbrido B</option>
+                            <option value="Mayckol N">Mayckol N (Nuevos)</option>
+                            <option value="Mayckol A">Mayckol A (Antiguos)</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -79,6 +98,7 @@
                             <option value="">Seleccione modalidad</option>
                             <option value="Diario">Diario</option>
                             <option value="Semanal">Semanal</option>
+                            <option value="Quincenal">Quincenal (Cuota)</option>
                             <option value="Mensual">Mensual</option>
                         </select>
                     </div>
@@ -103,19 +123,46 @@
         <!-- CUADRO 1: CLIENTES ACTIVOS -->
         <section class="card">
             <h2>🏋️‍♂️ Clientes Activos</h2>
+            
+            <!-- BUSCADOR Y FILTROS -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <input type="text" id="input-buscar-activo" placeholder="🔍 Buscar por cédula o nombre..." onkeyup="filtrarClientesActivos()" style="flex: 1; min-width: 200px; padding: 10px 14px; background: #1a1a1a; border: 1px solid #303030; color: white; border-radius: 8px; outline: none;">
+                
+                <select id="filtro-sede-activo" onchange="filtrarClientesActivos()" style="padding: 10px 14px; background: #1a1a1a; border: 1px solid #303030; color: white; border-radius: 8px; outline: none;">
+                    <option value="">Todas las sedes</option>
+                    <option value="La Trinidad">La Trinidad</option>
+                    <option value="Polideportivo">Polideportivo</option>
+                </select>
+
+                <select id="filtro-plan-activo" onchange="filtrarClientesActivos()" style="padding: 10px 14px; background: #1a1a1a; border: 1px solid #303030; color: white; border-radius: 8px; outline: none;">
+                    <option value="">Todos los planes</option>
+                    <option value="Solo máquinas">Solo máquinas</option>
+                    <option value="Guiado">Guiado</option>
+                    <option value="Asistido">Asistido</option>
+                    <option value="Personalizado">Personalizado</option>
+                    <option value="Edad plateada grupal">Edad plateada grupal</option>
+                    <option value="Edad plateada individual">Edad plateada individual</option>
+                    <option value="Funcional híbrido">Funcional híbrido</option>
+                    <option value="Funcional híbrido B">Funcional híbrido B</option>
+                    <option value="Mayckol N">Mayckol N</option>
+                    <option value="Mayckol A">Mayckol A</option>
+                </select>
+            </div>
+
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
                             <th>Cédula</th>
                             <th>Nombre y Apellido</th>
+                            <th>Sede</th>
                             <th>Plan / Modalidad</th>
                             <th>Estado</th>
                             <th>Fecha de Vencimiento</th>
                         </tr>
                     </thead>
                     <tbody id="lista-activos">
-                        <tr><td colspan="5" style="text-align: center;">Cargando clientes activos...</td></tr>
+                        <tr><td colspan="6" style="text-align: center;">Cargando clientes activos...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -130,13 +177,14 @@
                         <tr>
                             <th>Cédula</th>
                             <th>Nombre y Apellido</th>
+                            <th>Sede</th>
                             <th>Días Vencido</th>
                             <th>Monto Pendiente</th>
                             <th>Acción / Renovar</th>
                         </tr>
                     </thead>
                     <tbody id="lista-vencidos">
-                        <tr><td colspan="5" style="text-align: center;">Cargando clientes vencidos...</td></tr>
+                        <tr><td colspan="6" style="text-align: center;">Cargando clientes vencidos...</td></tr>
                     </tbody>
                 </table>
             </div>
