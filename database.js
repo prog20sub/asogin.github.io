@@ -1,3 +1,9 @@
+// --- VERIFICACIÓN DE SESIÓN ---
+const sesionActual = JSON.parse(localStorage.getItem('gym_sesion'));
+if (!sesionActual) {
+    window.location.href = 'login.html';
+}
+
 const SUPABASE_URL = 'https://chcemondfyqdreqdqkxg.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_CspBzD2ChSg_zLU_kX19wg_AfRG2c-b';
 
@@ -9,6 +15,8 @@ async function cargarBaseDeDatos() {
     const tablaDatabase = document.getElementById('tabla-database');
     if (!tablaDatabase) return;
 
+    tablaDatabase.innerHTML = `<tr><td colspan="9" style="text-align: center; color: #666;">Cargando registros...</td></tr>`;
+
     const { data: clientes, error } = await _supabase
         .from('clientes')
         .select('*')
@@ -16,7 +24,7 @@ async function cargarBaseDeDatos() {
 
     if (error) {
         console.error("Error al cargar la base de datos:", error);
-        tablaDatabase.innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">Error al cargar registros.</td></tr>`;
+        tablaDatabase.innerHTML = `<tr><td colspan="9" style="text-align: center; color: red;">Error al cargar registros.</td></tr>`;
         return;
     }
 
@@ -28,23 +36,32 @@ function mostrarClientesEnTabla(clientes) {
     const tablaDatabase = document.getElementById('tabla-database');
     if (!tablaDatabase) return;
 
-    if (clientes.length === 0) {
-        tablaDatabase.innerHTML = `<tr><td colspan="8" style="text-align: center;">No se encontraron clientes.</td></tr>`;
-        return;
-    }
+    const textoBusqueda = document.getElementById('buscador') ? document.getElementById('buscador').value.toLowerCase().trim() : '';
+    const sedeSeleccionada = document.getElementById('filtro-sede-db') ? document.getElementById('filtro-sede-db').value : '';
+    const planSeleccionado = document.getElementById('filtro-plan-db') ? document.getElementById('filtro-plan-db').value : '';
 
-    // Obtener fecha actual sin hora para calcular inactividad precisa
     const hoyStr = new Date().toISOString().split('T')[0];
     const [yearHoy, mesHoy, diaHoy] = hoyStr.split('-').map(Number);
     const fechaHoyNum = new Date(yearHoy, mesHoy - 1, diaHoy).getTime();
 
-    let html = '';
+    let filasHtml = '';
+    let contadorVisibles = 0;
+
     clientes.forEach(c => {
+        // Validación de filtros combinados
+        const textoCliente = `${c.cedula || ''} ${c.nombre || ''} ${c.apellido || ''}`.toLowerCase();
+        const coincideBusqueda = textoCliente.includes(textoBusqueda);
+        const coincideSede = sedeSeleccionada === "" || c.sede === sedeSeleccionada;
+        const coincidePlan = planSeleccionado === "" || c.plan === planSeleccionado;
+
+        if (!coincideBusqueda || !coincideSede || !coincidePlan) return;
+
+        contadorVisibles++;
+
         const fotoHtml = c.foto_url 
             ? `<img src="${c.foto_url}" alt="Foto" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">` 
             : `<span style="font-size: 0.8rem; color: #888;">Sin foto</span>`;
 
-        // Calcular días de vigencia o inactividad
         let estadoInactividad = '';
         if (c.fecha_vencimiento) {
             const fechaVencStr = c.fecha_vencimiento.split('T')[0];
@@ -66,46 +83,66 @@ function mostrarClientesEnTabla(clientes) {
             estadoInactividad = `<span style="color: #888;">Sin fecha</span>`;
         }
 
-        html += `
+        const badgeSede = c.sede === 'La Trinidad' 
+            ? 'background: #e3f2fd; color: #0d47a1; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 0.85rem;' 
+            : 'background: #e8f5e9; color: #1b5e20; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 0.85rem;';
+
+        filasHtml += `
             <tr>
                 <td>${fotoHtml}</td>
-                <td><strong>${c.cedula}</strong></td>
-                <td>${c.nombre} ${c.apellido}</td>
-                <td>${c.celular || 'N/A'}</td>
-                <td>${c.plan || 'Sin plan'} (${c.modalidad || 'N/A'})</td>
+                <td><strong>${escapeHTML(c.cedula || '')}</strong></td>
+                <td>${escapeHTML(c.nombre || '')} ${escapeHTML(c.apellido || '')}</td>
+                <td>${escapeHTML(c.celular || 'N/A')}</td>
+                <td>${escapeHTML(c.plan || 'Sin plan')} (${escapeHTML(c.modalidad || 'N/A')})</td>
                 <td>${estadoInactividad}</td>
-                <td>${c.cobrado_por || 'N/A'}</td>
+                <td>${escapeHTML(c.cobrado_por || 'N/A')}</td>
                 <td>
                     <button class="btn-renovar" style="background-color: #ffc107; color: #333;" onclick="abrirEditar(${c.id})">Editar / Borrar</button>
                 </td>
+                <td><span style="${badgeSede}">${escapeHTML(c.sede || 'No asignada')}</span></td>
             </tr>
         `;
     });
 
-    tablaDatabase.innerHTML = html;
+    if (contadorVisibles === 0) {
+        tablaDatabase.innerHTML = `<tr><td colspan="9" style="text-align: center;">No se encontraron registros que coincidan con los filtros.</td></tr>`;
+    } else {
+        tablaDatabase.innerHTML = filasHtml;
+    }
 }
 
-const inputBuscador = document.getElementById('buscador');
-if (inputBuscador) {
-    inputBuscador.addEventListener('input', (e) => {
-        const texto = e.target.value.toLowerCase();
-        const filtrados = clientesGlobales.filter(c => 
-            c.cedula.toLowerCase().includes(texto) ||
-            c.nombre.toLowerCase().includes(texto) ||
-            c.apellido.toLowerCase().includes(texto)
-        );
-        mostrarClientesEnTabla(filtrados);
-    });
+function filtrarClientesDB() {
+    mostrarClientesEnTabla(clientesGlobales);
+}
+
+function escapeHTML(str) {
+    return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 async function abrirEditar(id) {
     const cliente = clientesGlobales.find(c => c.id === id);
     if (!cliente) return;
 
+    const esPlanMayckol = cliente.plan && cliente.plan.includes('Mayckol');
+    if (sesionActual.rol === 'trinidad' && esPlanMayckol) {
+        alert("No tienes autorización para editar o modificar registros de Mayckol.");
+        return;
+    }
+    if (sesionActual.rol === 'mayckol' && !esPlanMayckol) {
+        alert("Solo tienes autorización para editar o modificar registros de Mayckol.");
+        return;
+    }
+
     document.getElementById('edit-id').value = cliente.id;
-    document.getElementById('edit-cedula').value = cliente.cedula;
-    document.getElementById('edit-nombre').value = cliente.nombre;
-    document.getElementById('edit-apellido').value = cliente.apellido;
+    document.getElementById('edit-cedula').value = cliente.cedula || '';
+    document.getElementById('edit-nombre').value = cliente.nombre || '';
+    document.getElementById('edit-apellido').value = cliente.apellido || '';
+    document.getElementById('edit-sede').value = cliente.sede || 'La Trinidad';
     document.getElementById('edit-celular').value = cliente.celular || '';
     document.getElementById('edit-correo').value = cliente.correo || '';
     document.getElementById('edit-cobrado').value = cliente.cobrado_por || '';
@@ -131,10 +168,15 @@ const formEditar = document.getElementById('form-editar');
 if (formEditar) {
     formEditar.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        const submitButton = formEditar.querySelector('button[type="submit"]');
+        if (submitButton) submitButton.disabled = true;
+
         const id = document.getElementById('edit-id').value;
         const cedula = document.getElementById('edit-cedula').value.trim();
         const nombre = document.getElementById('edit-nombre').value.trim();
         const apellido = document.getElementById('edit-apellido').value.trim();
+        const sede = document.getElementById('edit-sede').value;
         const celular = document.getElementById('edit-celular').value.trim();
         const correo = document.getElementById('edit-correo').value.trim();
         const fecha_vencimiento = document.getElementById('edit-vencimiento').value;
@@ -146,7 +188,7 @@ if (formEditar) {
         try {
             if (inputFotoEdit && inputFotoEdit.files.length > 0) {
                 const archivo = inputFotoEdit.files[0];
-                const nombreArchivo = `${Date.now()}_${archivo.name}`;
+                const nombreArchivo = `${Date.now()}_${archivo.name.replace(/\s+/g, '_')}`;
                 
                 const { error: uploadError } = await _supabase.storage
                     .from('fotos_clientes')
@@ -165,6 +207,7 @@ if (formEditar) {
                 cedula,
                 nombre,
                 apellido,
+                sede,
                 celular,
                 correo,
                 fecha_vencimiento,
@@ -179,12 +222,14 @@ if (formEditar) {
 
             if (error) throw error;
 
-            alert("✅ Datos y vencimiento actualizados con éxito");
+            alert("✅ Datos actualizados con éxito");
             cerrarModalEditar();
-            cargarBaseDeDatos();
+            await cargarBaseDeDatos();
 
         } catch (error) {
             alert("Error al actualizar: " + (error.message || "Verifica tu conexión."));
+        } finally {
+            if (submitButton) submitButton.disabled = false;
         }
     });
 }
@@ -207,8 +252,16 @@ async function eliminarClienteActual() {
     } else {
         alert("🗑️ Cliente eliminado del sistema con éxito.");
         cerrarModalEditar();
-        cargarBaseDeDatos();
+        await cargarBaseDeDatos();
     }
 }
 
+function cerrarSesion() {
+    if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+        localStorage.removeItem('gym_sesion');
+        window.location.href = 'login.html';
+    }
+}
+
+// Carga inicial
 cargarBaseDeDatos();
