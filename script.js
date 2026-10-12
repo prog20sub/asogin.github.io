@@ -89,10 +89,6 @@ function sumarUnMes(fechaBaseStr) {
     if (fechaBaseStr) {
         const [year, mes, dia] = fechaBaseStr.split('T')[0].split('-').map(Number);
         fechaBase = new Date(year, mes - 1, dia);
-        
-        if (fechaBase < hoy) {
-            fechaBase = hoy;
-        }
     } else {
         fechaBase = hoy;
     }
