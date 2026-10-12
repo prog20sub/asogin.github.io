@@ -1,0 +1,170 @@
+/* Fondo con imagen de personas entrenando y un velo oscuro para contraste */
+body {
+    /* Puedes cambiar la URL por la imagen de tu preferencia */
+    background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), 
+                url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenedor central */
+.login-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+}
+
+/* Tarjeta flotante blanca/limpia inspirada en el diseño de referencia */
+.login-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 440px;
+    padding: 40px 35px 35px 35px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    position: relative;
+    text-align: center;
+}
+
+/* Icono circular superior */
+.login-avatar {
+    width: 70px;
+    height: 70px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 5px 15px var(--primary-glow);
+    border: 4px solid #ffffff;
+}
+
+.login-card h2 {
+    margin-top: 20px;
+    font-size: 1.6rem;
+    color: #1a1a1a;
+    font-weight: 700;
+}
+
+.login-subtitle {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+/* Formulario */
+.form-group {
+    text-align: left;
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #444;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 12px 14px;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #333;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 8px var(--primary-glow);
+}
+
+/* Checkbox "Remember me" */
+.form-group-checkbox {
+    text-align: left;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.form-group-checkbox input {
+    margin-right: 6px;
+    cursor: pointer;
+}
+
+/* Botón de acceso */
+.btn-login {
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 13px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px var(--primary-glow);
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn-login:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+#mensaje-error {
+    margin-top: 15px;
+    font-size: 0.85rem;
+    color: #d32f2f;
+    font-weight: 500;
+}
+
+/* Ajuste de inputs para evitar zoom automático en celulares y dar mejor comodidad táctil */
+        .form-group input {
+            padding: 12px 14px;
+            background-color: #1a1a1a;
+            border: 1px solid #303030;
+            border-radius: 8px;
+            font-size: 16px; /* <-- Clave para evitar el zoom automático en iPhone/Android */
+            color: var(--text-color, #f5f5f5);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Regla específica para celulares pequeños */
+        @media (max-width: 480px) {
+            .login-card-container {
+                padding: 15px;
+            }
+
+            .login-card {
+                padding: 35px 20px 25px 20px; /* Reduce ligeramente los márgenes internos */
+            }
+
+            .login-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+                top: -30px;
+            }
+        }
