@@ -45,10 +45,15 @@ body {
     text-shadow: 0 0 10px var(--primary-glow);
 }
 
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
 .nav-links a {
     color: var(--text-muted);
     text-decoration: none;
-    margin-left: 20px;
     font-weight: 500;
     transition: color 0.3s;
 }
@@ -186,6 +191,7 @@ input[type="file"] {
 /* Tables */
 .table-responsive {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -256,6 +262,67 @@ tr:hover td {
 }
 
 .btn-renovar:hover {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* --- ESTILOS RESPONSIVOS PARA MÓVILES --- */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 15px 20px;
+        text-align: center;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .container {
+        padding: 0 12px;
+        margin: 15px auto;
+    }
+
+    h1 {
+        font-size: 1.4rem;
+        text-align: center;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    th, td {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+    }
+}
+
+:root {
+    --primary: #ff6600;
+    --primary-hover: #e55b00;
+    --primary-glow: rgba(255, 102, 0, 0.4);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+}ovar:hover {
     background-color: var(--primary);
     color: white;
     box-shadow: 0 0 10px var(--primary-glow);
