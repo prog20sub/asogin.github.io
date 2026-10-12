@@ -4,17 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym Control - Base de Datos</title>
+    <link rel="icon" type="image/png" href="img/asogin.jpeg">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
     <header class="navbar">
-        <div class="logo">💪 Gym Control</div>
-        <nav class="nav-links">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="img/asogin.jpeg" alt="Logo Asogin" style="height: 32px; width: 32px; border-radius: 50%; object-fit: cover;">
+            <span>Gym Control</span>
+        </div>
+        <nav class="nav-links" style="display: flex; align-items: center; gap: 15px;">
             <a href="index.html">Principal</a>
             <a href="database.html" class="active">Base de Datos</a>
             <a href="dashboard.html">Dashboard</a>
+            <!-- Botón de Cerrar Sesión Integrado -->
+            <button onclick="cerrarSesion()" style="background: #ff6600; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px;" onmouseover="this.style.background='#e55b00'" onmouseout="this.style.background='#ff6600'" title="Cerrar Sesión">
+                🚪 Salir
+            </button>
         </nav>
     </header>
 
@@ -22,14 +30,33 @@
         <h1>Base de Datos General de Clientes</h1>
 
         <section class="card">
-            <div class="form-group">
-                <label for="buscador">Buscar por Cédula, Nombre o Apellido:</label>
-                <input type="text" id="buscador" placeholder="Escribe para buscar...">
-            </div>
-        </section>
-
-        <section class="card">
             <h2>📁 Directorio de Clientes</h2>
+            
+            <!-- BUSCADOR Y FILTROS AVANZADOS -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <input type="text" id="buscador" placeholder="🔍 Buscar por cédula, nombre o apellido..." onkeyup="filtrarClientesDB()" style="flex: 1; min-width: 200px; padding: 10px 14px; background: #1a1a1a; border: 1px solid #303030; color: white; border-radius: 8px; outline: none;">
+                
+                <select id="filtro-sede-db" onchange="filtrarClientesDB()" style="padding: 10px 14px; background: #1a1a1a; border: 1px solid #303030; color: white; border-radius: 8px; outline: none;">
+                    <option value="">Todas las sedes</option>
+                    <option value="La Trinidad">La Trinidad</option>
+                    <option value="Polideportivo">Polideportivo</option>
+                </select>
+
+                <select id="filtro-plan-db" onchange="filtrarClientesDB()" style="padding: 10px 14px; background: #1a1a1a; border: 1px solid #303030; color: white; border-radius: 8px; outline: none;">
+                    <option value="">Todos los planes</option>
+                    <option value="Solo máquinas">Solo máquinas</option>
+                    <option value="Guiado">Guiado</option>
+                    <option value="Asistido">Asistido</option>
+                    <option value="Personalizado">Personalizado</option>
+                    <option value="Edad plateada grupal">Edad plateada grupal</option>
+                    <option value="Edad plateada individual">Edad plateada individual</option>
+                    <option value="Funcional híbrido">Funcional híbrido</option>
+                    <option value="Funcional híbrido B">Funcional híbrido B</option>
+                    <option value="Mayckol N">Mayckol N</option>
+                    <option value="Mayckol A">Mayckol A</option>
+                </select>
+            </div>
+
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -42,10 +69,11 @@
                             <th>Estado / Inactividad</th>
                             <th>Cobrado por</th>
                             <th>Acciones</th>
+                            <th>Sede</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-database">
-                        <tr><td colspan="8" style="text-align: center;">Cargando base de datos...</td></tr>
+                        <tr><td colspan="9" style="text-align: center;">Cargando base de datos...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -68,6 +96,13 @@
                 <div class="form-group">
                     <label for="edit-apellido">Apellido:</label>
                     <input type="text" id="edit-apellido" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-sede">Sede:</label>
+                    <select id="edit-sede" required>
+                        <option value="La Trinidad">La Trinidad</option>
+                        <option value="Polideportivo">Polideportivo</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="edit-celular">Celular:</label>
