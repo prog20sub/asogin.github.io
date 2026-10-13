@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Control - Control de Asistencia</title>
+    <link rel="icon" type="image/png" href="img/asogin.jpeg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Librería para escanear QR con la cámara del celular -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- Librería para convertir el carnet en imagen descargable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="img/asogin.jpeg" alt="Logo Asogin" style="height: 32px; width: 32px; border-radius: 50%; object-fit: cover;">
+            <span>Gym Control</span>
+        </div>
+        <nav class="nav-links" style="display: flex; align-items: center; gap: 15px;">
+            <a href="index.html">Principal</a>
+            <a href="database.html">Base de Datos</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="asistencia.html" class="active">Asistencia</a>
+            <button onclick="cerrarSesion()" style="background: #ff6600; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500;" title="Cerrar Sesión">
+                🚪 Salir
+            </button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Control de Asistencia e Ingresos</h1>
+
+        <!-- SECCIÓN 1: ESCÁNER / MARCADO DE ENTRADA -->
+        <section class="card">
+            <h2>📲 Marcar Entrada de Cliente</h2>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                
+                <!-- Lector de QR con Cámara -->
+                <div style="flex: 1; min-width: 280px; text-align: center;">
+                    <div id="reader" style="width: 100%; border-radius: 12px; overflow: hidden; border: 2px dashed #ff6600;"></div>
+                    <button onclick="iniciarEscaner()" class="btn-primary" style="margin-top: 10px;">📷 Encender Cámara</button>
+                </div>
+
+                <!-- Búsqueda Manual / Lectura Directa -->
+                <div style="flex: 1; min-width: 280px;">
+                    <form id="form-marcar-asistencia">
+                        <div class="form-group">
+                            <label for="input-cedula-asistencia">Cédula del Cliente:</label>
+                            <input type="text" id="input-cedula-asistencia" placeholder="Ej: V-12345678" required style="padding: 12px; font-size: 1.1rem;">
+                        </div>
+                        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">Registrar Ingreso</button>
+                    </form>
+
+                    <!-- Tarjeta de Resultado del Marcaje -->
+                    <div id="resultado-marcaje" style="margin-top: 20px; display: none; padding: 15px; border-radius: 12px; text-align: center;">
+                        <h3 id="res-nombre" style="margin-bottom: 5px;">-</h3>
+                        <p id="res-plan" style="color: #ccc; font-size: 0.9rem;">-</p>
+                        <div id="res-badge" style="margin-top: 10px; padding: 8px; border-radius: 6px; font-weight: bold;">-</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE GENERACIÓN DE CARNET Y QR -->
+        <section class="card" style="border: 1px dashed #ff6600;">
+            <h2>💳 Generador de Carnet Digital y QR</h2>
+            <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;">Ingresa la cédula del cliente para emitir su carnet institucional con código QR listo para descargar, imprimir o enviar por WhatsApp.</p>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="qr-cedula-test" placeholder="Ingresa cédula (Ej: V-12345678)" style="padding: 10px; flex: 1; min-width: 200px;">
+                <button onclick="generarCarnetDesdeInput()" class="btn-primary">Generar Carnet</button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: HISTORIAL Y AUDITORÍA DE ASISTENCIA -->
+        <section class="card">
+            <h2>📋 Historial de Entradas</h2>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                <input type="text" id="buscar-historial" placeholder="🔍 Buscar por cliente o cédula..." onkeyup="cargarHistorialAsistencias()" style="flex: 1; padding: 10px; background: #1a1a1a; color: white; border: 1px solid #303030; border-radius: 8px;">
+                <input type="date" id="filtro-fecha-asistencia" onchange="cargarHistorialAsistencias()" style="padding: 10px; background: #1a1a1a; color: white; border: 1px solid #303030; border-radius: 8px;">
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Cédula</th>
+                            <th>Nombre y Apellido</th>
+                            <th>Sede</th>
+                            <th>Plan</th>
+                            <th>Estado al entrar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-asistencias">
+                        <tr><td colspan="6" style="text-align: center;">Cargando historial...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL / TARJETA DEL CARNET INSTITUCIONAL -->
+    <div id="modal-carnet" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; padding: 20px;">
+        <div style="background: #141414; border: 2px solid #ff6600; border-radius: 16px; padding: 25px; max-width: 380px; width: 100%; box-shadow: 0 10px 30px rgba(255,102,0,0.3); text-align: center; position: relative;">
+            
+            <button onclick="cerrarCarnet()" style="position: absolute; top: 12px; right: 15px; background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;">✖</button>
+
+            <!-- ENCABEZADO CON LOGO Y TÍTULO -->
+            <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 15px; border-bottom: 1px solid #2a2a2a; padding-bottom: 12px;">
+                <img src="img/asogin.jpeg" alt="Logo Asogin" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #ff6600;">
+                <div style="text-align: left;">
+                    <h3 style="margin: 0; color: #fff; font-size: 1.05rem; font-weight: 700;">Gimnasio Inclusivo Asogin</h3>
+                    <span style="font-size: 0.75rem; color: #ff6600; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Credencial de Afiliado</span>
+                </div>
+            </div>
+
+            <!-- DATOS DEL CLIENTE -->
+            <div style="margin-bottom: 15px;">
+                <h2 id="carnet-nombre" style="margin: 0; color: #ffffff; font-size: 1.3rem; font-weight: 700;">-</h2>
+                <p id="carnet-cedula" style="margin: 4px 0 0 0; color: #ff6600; font-weight: 600; font-size: 1rem;">-</p>
+                <p id="carnet-plan" style="margin: 3px 0 0 0; color: #aaa; font-size: 0.85rem;">-</p>
+            </div>
+
+            <!-- CÓDIGO QR -->
+            <div style="background: #ffffff; padding: 12px; border-radius: 12px; display: inline-block; margin-bottom: 15px; border: 2px solid #ff6600;">
+                <img id="carnet-qr-img" src="" alt="Código QR del Cliente" style="width: 150px; height: 150px; display: block;">
+            </div>
+
+            <!-- AVISO DE USO -->
+            <div style="background: rgba(255, 102, 0, 0.1); border: 1px solid rgba(255, 102, 0, 0.3); padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; color: #ddd; margin-bottom: 18px; line-height: 1.3;">
+                📌 <strong>Importante:</strong> Esta credencial es requerida para validar su acceso y registrar su asistencia mediante el lector QR.
+            </div>
+
+            <!-- BOTONES DE ACCIÓN -->
+            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                <button onclick="window.print()" class="btn-primary" style="flex: 1; font-size: 0.85rem; padding: 10px;">🖨️ Imprimir</button>
+                <button id="btn-enviar-carnet-ws" class="btn-primary" style="flex: 1; background: #25d366; font-size: 0.85rem; padding: 10px;">💬 Enviar WS</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="asistencia.js"></script>
+</body>
+</html>
