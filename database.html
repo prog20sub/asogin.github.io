@@ -19,6 +19,7 @@
             <a href="index.html">Principal</a>
             <a href="database.html" class="active">Base de Datos</a>
             <a href="dashboard.html">Dashboard</a>
+            <a href="asistencia.html">Asistencia</a>
             <!-- Botón de Cerrar Sesión Integrado -->
             <button onclick="cerrarSesion()" style="background: #ff6600; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: background 0.2s; display: inline-flex; align-items: center; gap: 4px;" onmouseover="this.style.background='#e55b00'" onmouseout="this.style.background='#ff6600'" title="Cerrar Sesión">
                 🚪 Salir
@@ -32,8 +33,8 @@
         <section class="card">
             <h2>📁 Directorio de Clientes</h2>
             
-            <!-- BUSCADOR Y FILTROS AVANZADOS -->
-            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <!-- BUSCADOR, FILTROS Y BOTÓN DE EXPORTAR -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
                 <input type="text" id="buscador" placeholder="🔍 Buscar por cédula, nombre o apellido..." onkeyup="filtrarClientesDB()" style="flex: 1; min-width: 200px; padding: 10px 14px; background: #1a1a1a; border: 1px solid #303030; color: white; border-radius: 8px; outline: none;">
                 
                 <select id="filtro-sede-db" onchange="filtrarClientesDB()" style="padding: 10px 14px; background: #1a1a1a; border: 1px solid #303030; color: white; border-radius: 8px; outline: none;">
@@ -55,6 +56,11 @@
                     <option value="Mayckol N">Mayckol N</option>
                     <option value="Mayckol A">Mayckol A</option>
                 </select>
+
+                <!-- Botón de Exportar Clientes a Excel -->
+                <button onclick="exportarClientesACSV()" class="btn-primary" style="background: #2e7d32; padding: 10px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap; border: none; color: white; font-weight: 500;" title="Descargar todos los clientes">
+                    📥 Exportar Excel
+                </button>
             </div>
 
             <div class="table-responsive">
