@@ -324,4 +324,49 @@ body, html {
     height: 100%;
 }
 
+/* 1. Evitar que los inputs y selects se salgan del contenedor en pantallas pequeñas */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="email"],
+select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. Ajustar el menú de navegación (navbar) en móviles */
+.navbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Reducir un poco el tamaño de fuente del menú en teléfonos para que entre todo en una fila */
+@media (max-width: 600px) {
+    .nav-links a {
+        font-size: 0.85rem;
+    }
+    
+    .navbar .logo span {
+        font-size: 1rem;
+    }
+
+    h1 {
+        font-size: 1.3rem !important;
+    }
+}
