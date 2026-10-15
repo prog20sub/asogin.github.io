@@ -256,6 +256,52 @@ async function eliminarClienteActual() {
     }
 }
 
+// --- EXPORTAR TODA LA BASE DE DATOS DE CLIENTES A CSV / EXCEL ---
+async function exportarClientesACSV() {
+    try {
+        const { data: clientes, error } = await _supabase
+            .from('clientes')
+            .select('*')
+            .order('nombre', { ascending: true });
+
+        if (error || !clientes || clientes.length === 0) {
+            alert("No hay clientes registrados para exportar.");
+            return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,Cedula,Nombre,Apellido,Celular,Correo,Sede,Plan,Modalidad,Fecha Vencimiento,Cobrado Por\n";
+
+        clientes.forEach(c => {
+            const fila = [
+                `"${c.cedula || ''}"`,
+                `"${c.nombre || ''}"`,
+                `"${c.apellido || ''}"`,
+                `"${c.celular || ''}"`,
+                `"${c.correo || ''}"`,
+                `"${c.sede || ''}"`,
+                `"${c.plan || ''}"`,
+                `"${c.modalidad || ''}"`,
+                `"${c.fecha_vencimiento || ''}"`,
+                `"${c.cobrado_por || ''}"`
+            ];
+            csvContent += fila.join(",") + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `base_datos_clientes_asogin_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        
+        link.click();
+        document.body.removeChild(link);
+
+    } catch (err) {
+        console.error("Error al exportar clientes:", err);
+        alert("Hubo un error al generar el archivo de exportación.");
+    }
+}
+
 function cerrarSesion() {
     if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
         localStorage.removeItem('gym_sesion');
