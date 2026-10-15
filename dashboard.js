@@ -46,3 +46,13 @@ async function cargarDashboard() {
 }
 
 cargarDashboard();
+
+// --- VERIFICACIÓN DE SESIÓN Y RESTRICCIÓN DE ACCESO ---
+const sesionActual = JSON.parse(localStorage.getItem('gym_sesion'));
+
+if (!sesionActual) {
+    window.location.href = 'login.html';
+} else if (sesionActual.rol === 'mayckol') {
+    alert("⛔ No tienes permisos para acceder al Dashboard general.");
+    window.location.href = 'index.html'; // Redirige a la página principal
+}
