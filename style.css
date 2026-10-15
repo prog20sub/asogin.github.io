@@ -322,8 +322,6 @@ tr:hover td {
 body, html {
     width: 100%;
     height: 100%;
-}ovar:hover {
-    background-color: var(--primary);
-    color: white;
-    box-shadow: 0 0 10px var(--primary-glow);
 }
+
+
