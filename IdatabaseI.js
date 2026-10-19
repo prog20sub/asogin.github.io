@@ -11,6 +11,26 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let clientesGlobales = [];
 
+// --- FUNCIÓN GLOBAL PARA REGISTRAR EN EL HISTORIAL DE AUDITORÍA ---
+async function registrarHistorial(accion, detalle, cedulaAfectada = null) {
+    try {
+        const sesion = JSON.parse(localStorage.getItem('gym_sesion')) || { usuario: 'Desconocido', rol: 'Sin Rol', sede: 'N/A' };
+
+        await _supabase
+            .from('historial_cambios')
+            .insert([{
+                usuario: sesion.usuario,
+                rol: sesion.rol,
+                sede: sesion.sede,
+                accion: accion,
+                detalle: detalle,
+                cedula_afectada: cedulaAfectada
+            }]);
+    } catch (err) {
+        console.error("Error al registrar en historial:", err);
+    }
+}
+
 async function cargarBaseDeDatos() {
     const tablaDatabase = document.getElementById('tabla-database');
     if (!tablaDatabase) return;
@@ -222,6 +242,13 @@ if (formEditar) {
 
             if (error) throw error;
 
+            // 🕵️‍♂️ AUDITORÍA: Registrar modificación de cliente
+            await registrarHistorial(
+                'EDICION_CLIENTE', 
+                `Se modificaron los datos personales de ${nombre} ${apellido} (${cedula}). Vencimiento: ${fecha_vencimiento}`, 
+                cedula
+            );
+
             alert("✅ Datos actualizados con éxito");
             cerrarModalEditar();
             await cargarBaseDeDatos();
@@ -237,6 +264,7 @@ if (formEditar) {
 async function eliminarClienteActual() {
     const id = document.getElementById('edit-id').value;
     const nombreCliente = document.getElementById('edit-nombre').value;
+    const cedulaCliente = document.getElementById('edit-cedula').value;
 
     const confirmar = confirm(`¿Estás seguro de que deseas eliminar permanentemente a ${nombreCliente} del sistema? Esta acción no se puede deshacer.`);
     
@@ -250,6 +278,13 @@ async function eliminarClienteActual() {
     if (error) {
         alert("Error al eliminar el cliente: " + error.message);
     } else {
+        // 🕵️‍♂️ AUDITORÍA: Registrar eliminación de cliente
+        await registrarHistorial(
+            'ELIMINAR_CLIENTE', 
+            `Se eliminó permanentemente al cliente ${nombreCliente} (${cedulaCliente})`, 
+            cedulaCliente
+        );
+
         alert("🗑️ Cliente eliminado del sistema con éxito.");
         cerrarModalEditar();
         await cargarBaseDeDatos();
@@ -295,6 +330,9 @@ async function exportarClientesACSV() {
         
         link.click();
         document.body.removeChild(link);
+
+        // 🕵️‍♂️ AUDITORÍA: Registrar descarga/exportación de la base de datos
+        await registrarHistorial('EXPORTAR_EXCEL', 'El usuario descargó un reporte CSV completo de la base de datos de clientes');
 
     } catch (err) {
         console.error("Error al exportar clientes:", err);
