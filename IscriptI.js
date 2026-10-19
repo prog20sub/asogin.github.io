@@ -18,6 +18,26 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let fechaVencimientoAnteriorGlobal = null;
 let clientesGlobales = []; // Almacena los registros cargados para permitir el filtrado instantáneo local
 
+// --- FUNCIÓN GLOBAL PARA REGISTRAR EN EL HISTORIAL DE AUDITORÍA ---
+async function registrarHistorial(accion, detalle, cedulaAfectada = null) {
+    try {
+        const sesion = JSON.parse(localStorage.getItem('gym_sesion')) || { usuario: 'Desconocido', rol: 'Sin Rol', sede: 'N/A' };
+
+        await _supabase
+            .from('historial_cambios')
+            .insert([{
+                usuario: sesion.usuario,
+                rol: sesion.rol,
+                sede: sesion.sede,
+                accion: accion,
+                detalle: detalle,
+                cedula_afectada: cedulaAfectada
+            }]);
+    } catch (err) {
+        console.error("Error al registrar en historial:", err);
+    }
+}
+
 // --- TABLA DE PRECIOS ---
 const PRECIOS_PLANES = {
     "Solo máquinas": { Diario: 5, Semanal: 15, Mensual: 45 },
@@ -291,6 +311,21 @@ if (formCliente) {
 
             if (errorDb) throw errorDb;
 
+            // 🕵️‍♂️ AUDITORÍA: Guardar registro automático del cambio
+            if (clienteExistente) {
+                await registrarHistorial(
+                    'RENOVACION', 
+                    `Renovación de membresía para ${nombre} ${apellido} (${cedula}). Plan: ${plan} (${modalidad}), Monto: $${monto}, Vence: ${fecha_vencimiento}`, 
+                    cedula
+                );
+            } else {
+                await registrarHistorial(
+                    'NUEVO_CLIENTE', 
+                    `Registro de nuevo cliente: ${nombre} ${apellido} (${cedula}). Plan: ${plan} (${modalidad}), Monto: $${monto}, Sede: ${sede}`, 
+                    cedula
+                );
+            }
+
             fechaVencimientoAnteriorGlobal = null;
             const avisoAnterior = document.getElementById('aviso-fecha-corte');
             if (avisoAnterior) avisoAnterior.remove();
@@ -382,7 +417,6 @@ function renderizarListas(clientes) {
             claseBadge = 'badge-por-vencer';
         }
 
-        // Filtros combinados: Buscador de texto, Sede y Plan
         const textoCliente = `${cliente.cedula} ${cliente.nombre} ${cliente.apellido}`.toLowerCase();
         const coincideBusqueda = textoCliente.includes(textoBusqueda);
         const coincideSede = sedeSeleccionada === "" || cliente.sede === sedeSeleccionada;
@@ -481,7 +515,6 @@ function renderizarListas(clientes) {
     }
 }
 
-// Función activada por el buscador y selectores de filtro
 function filtrarClientesActivos() {
     renderizarListas(clientesGlobales);
 }
